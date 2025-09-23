@@ -15,7 +15,6 @@ import {
   writeBatch
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { User, Project, Page } from "../types";
 
 // Collections
 const USERS_COLLECTION = "users";
@@ -23,7 +22,7 @@ const PROJECTS_COLLECTION = "projects";
 const PAGES_COLLECTION = "pages";
 
 // User operations
-export const createUser = async (userData: Omit<User, "id">): Promise<string> => {
+export const createUser = async (userData) => {
   try {
     const docRef = await addDoc(collection(db, USERS_COLLECTION), {
       ...userData,
@@ -37,13 +36,13 @@ export const createUser = async (userData: Omit<User, "id">): Promise<string> =>
   }
 };
 
-export const getUser = async (userId: string): Promise<User | null> => {
+export const getUser = async (userId) => {
   try {
     const docRef = doc(db, USERS_COLLECTION, userId);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as User;
+      return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   } catch (error) {
@@ -52,7 +51,7 @@ export const getUser = async (userId: string): Promise<User | null> => {
   }
 };
 
-export const updateUser = async (userId: string, userData: Partial<User>): Promise<void> => {
+export const updateUser = async (userId, userData) => {
   try {
     const docRef = doc(db, USERS_COLLECTION, userId);
     await updateDoc(docRef, {
@@ -66,10 +65,7 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 };
 
 // Project operations
-export const createProject = async (
-  userId: string, 
-  projectData: Omit<Project, "id" | "created_at" | "updated_at">
-): Promise<string> => {
+export const createProject = async (userId, projectData) => {
   try {
     const docRef = await addDoc(collection(db, PROJECTS_COLLECTION), {
       ...projectData,
@@ -84,7 +80,7 @@ export const createProject = async (
   }
 };
 
-export const getUserProjects = async (userId: string): Promise<Project[]> => {
+export const getUserProjects = async (userId) => {
   try {
     const q = query(
       collection(db, PROJECTS_COLLECTION),
@@ -98,14 +94,14 @@ export const getUserProjects = async (userId: string): Promise<Project[]> => {
       ...doc.data(),
       created_at: doc.data().created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
       updated_at: doc.data().updated_at?.toDate?.()?.toISOString() || new Date().toISOString(),
-    })) as Project[];
+    }));
   } catch (error) {
     console.error("Error getting user projects:", error);
     throw error;
   }
 };
 
-export const getProject = async (projectId: string): Promise<Project | null> => {
+export const getProject = async (projectId) => {
   try {
     const docRef = doc(db, PROJECTS_COLLECTION, projectId);
     const docSnap = await getDoc(docRef);
@@ -117,7 +113,7 @@ export const getProject = async (projectId: string): Promise<Project | null> => 
         ...data,
         created_at: data.created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
         updated_at: data.updated_at?.toDate?.()?.toISOString() || new Date().toISOString(),
-      } as Project;
+      };
     }
     return null;
   } catch (error) {
@@ -126,7 +122,7 @@ export const getProject = async (projectId: string): Promise<Project | null> => 
   }
 };
 
-export const updateProject = async (projectId: string, projectData: Partial<Project>): Promise<void> => {
+export const updateProject = async (projectId, projectData) => {
   try {
     const docRef = doc(db, PROJECTS_COLLECTION, projectId);
     await updateDoc(docRef, {
@@ -139,7 +135,7 @@ export const updateProject = async (projectId: string, projectData: Partial<Proj
   }
 };
 
-export const deleteProject = async (projectId: string): Promise<void> => {
+export const deleteProject = async (projectId) => {
   try {
     // Delete project and all its pages in a batch
     const batch = writeBatch(db);
@@ -167,10 +163,7 @@ export const deleteProject = async (projectId: string): Promise<void> => {
 };
 
 // Page operations
-export const createPage = async (
-  projectId: string,
-  pageData: Omit<Page, "id" | "created_at" | "updated_at">
-): Promise<string> => {
+export const createPage = async (projectId, pageData) => {
   try {
     const docRef = await addDoc(collection(db, PAGES_COLLECTION), {
       ...pageData,
@@ -185,7 +178,7 @@ export const createPage = async (
   }
 };
 
-export const getProjectPages = async (projectId: string): Promise<Page[]> => {
+export const getProjectPages = async (projectId) => {
   try {
     const q = query(
       collection(db, PAGES_COLLECTION),
@@ -199,14 +192,14 @@ export const getProjectPages = async (projectId: string): Promise<Page[]> => {
       ...doc.data(),
       created_at: doc.data().created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
       updated_at: doc.data().updated_at?.toDate?.()?.toISOString() || new Date().toISOString(),
-    })) as Page[];
+    }));
   } catch (error) {
     console.error("Error getting project pages:", error);
     throw error;
   }
 };
 
-export const updatePage = async (pageId: string, pageData: Partial<Page>): Promise<void> => {
+export const updatePage = async (pageId, pageData) => {
   try {
     const docRef = doc(db, PAGES_COLLECTION, pageId);
     await updateDoc(docRef, {
@@ -219,7 +212,7 @@ export const updatePage = async (pageId: string, pageData: Partial<Page>): Promi
   }
 };
 
-export const deletePage = async (pageId: string): Promise<void> => {
+export const deletePage = async (pageId) => {
   try {
     const docRef = doc(db, PAGES_COLLECTION, pageId);
     await deleteDoc(docRef);
@@ -230,10 +223,7 @@ export const deletePage = async (pageId: string): Promise<void> => {
 };
 
 // Real-time subscriptions
-export const subscribeToUserProjects = (
-  userId: string,
-  callback: (projects: Project[]) => void
-) => {
+export const subscribeToUserProjects = (userId, callback) => {
   const q = query(
     collection(db, PROJECTS_COLLECTION),
     where("userId", "==", userId),
@@ -246,7 +236,7 @@ export const subscribeToUserProjects = (
       ...doc.data(),
       created_at: doc.data().created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
       updated_at: doc.data().updated_at?.toDate?.()?.toISOString() || new Date().toISOString(),
-    })) as Project[];
+    }));
     
     callback(projects);
   }, (error) => {
@@ -254,10 +244,7 @@ export const subscribeToUserProjects = (
   });
 };
 
-export const subscribeToProjectPages = (
-  projectId: string,
-  callback: (pages: Page[]) => void
-) => {
+export const subscribeToProjectPages = (projectId, callback) => {
   const q = query(
     collection(db, PAGES_COLLECTION),
     where("projectId", "==", projectId),
@@ -270,7 +257,7 @@ export const subscribeToProjectPages = (
       ...doc.data(),
       created_at: doc.data().created_at?.toDate?.()?.toISOString() || new Date().toISOString(),
       updated_at: doc.data().updated_at?.toDate?.()?.toISOString() || new Date().toISOString(),
-    })) as Page[];
+    }));
     
     callback(pages);
   }, (error) => {

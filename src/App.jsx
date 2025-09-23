@@ -14,8 +14,8 @@ import { VersionHistory } from './pages/VersionHistory';
 import { Billing } from './pages/Billing';
 import { Settings } from './pages/Settings';
 import { Start } from './pages/Start';
-import { useStore } from './stores/useStore';
-import { handleRedirectResult } from './services/auth';
+import { useStore } from './stores/useStore.js';
+import { handleRedirectResult } from './services/auth.js';
 
 function App() {
   const { isDarkMode, isLoading, initAuth } = useStore();

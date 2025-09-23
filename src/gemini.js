@@ -1,31 +1,10 @@
 // Gemini AI integration - Based on javascript_gemini blueprint
 import { GoogleGenAI } from "@google/genai";
-import { Component, ComponentType, Page, Theme } from "./types";
 
 // This API key is from Gemini Developer API Key, not vertex AI API Key
 const ai = new GoogleGenAI({ apiKey: import.meta.env.GEMINI_API_KEY || "" });
 
-export interface WebsiteGenerationRequest {
-  description: string;
-  industry?: string;
-  style?: string;
-  colors?: string[];
-  features?: string[];
-}
-
-export interface ComponentSuggestion {
-  type: ComponentType;
-  props: Record<string, any>;
-  styles: Record<string, any>;
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-}
-
-export async function generateWebsiteLayout(request: WebsiteGenerationRequest): Promise<{
-  page: Partial<Page>;
-  components: ComponentSuggestion[];
-  theme: Partial<Theme>;
-}> {
+export async function generateWebsiteLayout(request) {
   try {
     const prompt = `
 You are a professional web designer. Create a complete website layout based on this request:
@@ -105,7 +84,7 @@ Respond with valid JSON only:
   }
 }
 
-export async function enhanceComponent(component: Component, instructions: string): Promise<Component> {
+export async function enhanceComponent(component, instructions) {
   try {
     const prompt = `
 Enhance this website component based on the instructions:
@@ -137,7 +116,7 @@ Respond with valid JSON only:
   }
 }
 
-export async function generateContent(contentType: string, context: string): Promise<string> {
+export async function generateContent(contentType, context) {
   try {
     const prompt = `Generate professional ${contentType} content for a website.
 Context: ${context}

@@ -1,22 +1,21 @@
 import React, { useState } from 'react';
 import { ComponentPanel } from '../components/Editor/ComponentPanel';
 import { Canvas } from '../components/Editor/Canvas';
-import { useStore } from '../stores/useStore';
-import { ComponentType, Component } from '../types';
+import { useStore } from '../stores/useStore.js';
 import { PanelRightOpen } from 'lucide-react';
 
-export const Editor: React.FC = () => {
+export const Editor = () => {
   const { currentPage, addComponent } = useStore();
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
-  const handleAddComponent = (type: ComponentType) => {
-    const newComponent: Component = {
+  const handleAddComponent = (type) => {
+    const newComponent = {
       id: Date.now().toString(),
       type,
       props: {},
       styles: {},
       position: { x: 0, y: 0 },
-      size: { width: 100, height: 'auto' as any },
+      size: { width: 100, height: 'auto' },
     };
 
     addComponent(newComponent);

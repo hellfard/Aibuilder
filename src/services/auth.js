@@ -4,12 +4,10 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
-  User as FirebaseUser,
   getRedirectResult
 } from "firebase/auth";
 import { auth, googleProvider, githubProvider } from "../firebase";
 import { createUser, getUser, updateUser } from "./database";
-import { User } from "../types";
 
 // Enhanced provider setup
 googleProvider.addScope('email');
@@ -17,10 +15,8 @@ googleProvider.addScope('profile');
 
 githubProvider.addScope('user:email');
 
-export type AuthProvider = 'google' | 'github' | 'discord';
-
 // Sign in functions
-export const signInWithGoogle = async (usePopup: boolean = true): Promise<void> => {
+export const signInWithGoogle = async (usePopup = true) => {
   try {
     if (usePopup) {
       await signInWithPopup(auth, googleProvider);
@@ -33,7 +29,7 @@ export const signInWithGoogle = async (usePopup: boolean = true): Promise<void> 
   }
 };
 
-export const signInWithGitHub = async (usePopup: boolean = true): Promise<void> => {
+export const signInWithGitHub = async (usePopup = true) => {
   try {
     if (usePopup) {
       await signInWithPopup(auth, githubProvider);
@@ -47,7 +43,7 @@ export const signInWithGitHub = async (usePopup: boolean = true): Promise<void> 
 };
 
 // Handle redirect result (from firebase_barebones_javascript integration)
-export const handleRedirectResult = async (): Promise<void> => {
+export const handleRedirectResult = async () => {
   try {
     const result = await getRedirectResult(auth);
     if (result) {
@@ -61,7 +57,7 @@ export const handleRedirectResult = async (): Promise<void> => {
 };
 
 // Sign out
-export const signOutUser = async (): Promise<void> => {
+export const signOutUser = async () => {
   try {
     await signOut(auth);
   } catch (error) {
@@ -71,9 +67,9 @@ export const signOutUser = async (): Promise<void> => {
 };
 
 // Convert Firebase user to app user
-const createAppUserFromFirebaseUser = async (firebaseUser: FirebaseUser): Promise<User> => {
+const createAppUserFromFirebaseUser = async (firebaseUser) => {
   const provider = firebaseUser.providerData[0]?.providerId;
-  let appProvider: AuthProvider = 'google';
+  let appProvider = 'google';
   
   if (provider?.includes('github')) {
     appProvider = 'github';
@@ -81,7 +77,7 @@ const createAppUserFromFirebaseUser = async (firebaseUser: FirebaseUser): Promis
     appProvider = 'discord';
   }
 
-  const appUser: Omit<User, "id"> = {
+  const appUser = {
     email: firebaseUser.email || '',
     name: firebaseUser.displayName || 'Anonymous User',
     avatar: firebaseUser.photoURL || undefined,
@@ -106,13 +102,11 @@ const createAppUserFromFirebaseUser = async (firebaseUser: FirebaseUser): Promis
     existingUser = await getUser(firebaseUser.uid);
   }
 
-  return existingUser!;
+  return existingUser;
 };
 
 // Auth state listener
-export const onAuthStateChange = (
-  callback: (user: User | null) => void
-): (() => void) => {
+export const onAuthStateChange = (callback) => {
   return onAuthStateChanged(auth, async (firebaseUser) => {
     if (firebaseUser) {
       try {
@@ -129,11 +123,11 @@ export const onAuthStateChange = (
 };
 
 // Get current user
-export const getCurrentUser = (): FirebaseUser | null => {
+export const getCurrentUser = () => {
   return auth.currentUser;
 };
 
 // Check if user is authenticated
-export const isAuthenticated = (): boolean => {
+export const isAuthenticated = () => {
   return !!auth.currentUser;
 };
