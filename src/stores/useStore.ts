@@ -1,27 +1,51 @@
 import { create } from 'zustand';
 import { User, Project, Page, Component, Theme } from '../types';
+import {
+  createProject,
+  updateProject,
+  deleteProject,
+  getUserProjects,
+  createPage,
+  updatePage,
+  deletePage,
+  getProjectPages,
+  subscribeToUserProjects,
+  subscribeToProjectPages
+} from '../services/database';
+import { onAuthStateChange, signOutUser } from '../services/auth';
 
 interface AppStore {
   // User state
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   setUser: (user: User | null) => void;
+  signOut: () => Promise<void>;
+  initAuth: () => () => void;
 
   // Project state
   currentProject: Project | null;
   projects: Project[];
   setCurrentProject: (project: Project | null) => void;
-  addProject: (project: Project) => void;
-  updateProject: (project: Project) => void;
-  deleteProject: (projectId: string) => void;
+  createProject: (projectData: Omit<Project, "id" | "created_at" | "updated_at">) => Promise<string>;
+  updateProject: (projectId: string, projectData: Partial<Project>) => Promise<void>;
+  deleteProject: (projectId: string) => Promise<void>;
+  loadUserProjects: () => Promise<void>;
+
+  // Page state
+  currentPage: Page | null;
+  pages: Page[];
+  setCurrentPage: (page: Page | null) => void;
+  createPage: (projectId: string, pageData: Omit<Page, "id" | "created_at" | "updated_at">) => Promise<string>;
+  updatePage: (pageId: string, pageData: Partial<Page>) => Promise<void>;
+  deletePage: (pageId: string) => Promise<void>;
+  loadProjectPages: (projectId: string) => Promise<void>;
 
   // Editor state
-  currentPage: Page | null;
   selectedComponent: Component | null;
   isPreviewMode: boolean;
   isDarkMode: boolean;
   isSidebarOpen: boolean;
-  setCurrentPage: (page: Page | null) => void;
   setSelectedComponent: (component: Component | null) => void;
   setPreviewMode: (isPreview: boolean) => void;
   toggleDarkMode: () => void;
@@ -31,6 +55,11 @@ interface AppStore {
   addComponent: (component: Component) => void;
   updateComponent: (component: Component) => void;
   deleteComponent: (componentId: string) => void;
+
+  // AI functionality
+  isGenerating: boolean;
+  generateWebsite: (request: any) => Promise<void>;
+  enhanceComponent: (componentId: string, instructions: string) => Promise<void>;
 
   // Theme state
   currentTheme: Theme;
@@ -75,29 +104,118 @@ export const useStore = create<AppStore>((set, get) => ({
   // User state
   user: null,
   isAuthenticated: false,
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  isLoading: true,
+  setUser: (user) => set({ user, isAuthenticated: !!user, isLoading: false }),
+  
+  signOut: async () => {
+    try {
+      await signOutUser();
+      set({ user: null, isAuthenticated: false, currentProject: null, projects: [], pages: [] });
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  },
+  
+  initAuth: () => {
+    return onAuthStateChange((user) => {
+      set({ user, isAuthenticated: !!user, isLoading: false });
+      if (user) {
+        get().loadUserProjects();
+      } else {
+        set({ projects: [], currentProject: null, pages: [] });
+      }
+    });
+  },
 
   // Project state
   currentProject: null,
   projects: [],
-  setCurrentProject: (currentProject) => set({ currentProject }),
-  addProject: (project) => set((state) => ({ projects: [...state.projects, project] })),
-  updateProject: (project) => set((state) => ({
-    projects: state.projects.map(p => p.id === project.id ? project : p),
-    currentProject: state.currentProject?.id === project.id ? project : state.currentProject,
-  })),
-  deleteProject: (projectId) => set((state) => ({
-    projects: state.projects.filter(p => p.id !== projectId),
-    currentProject: state.currentProject?.id === projectId ? null : state.currentProject,
-  })),
+  setCurrentProject: (currentProject) => {
+    set({ currentProject });
+    if (currentProject) {
+      get().loadProjectPages(currentProject.id);
+    }
+  },
+  
+  createProject: async (projectData) => {
+    const { user } = get();
+    if (!user) throw new Error('User not authenticated');
+    
+    const projectId = await createProject(user.id, projectData);
+    await get().loadUserProjects();
+    return projectId;
+  },
+  
+  updateProject: async (projectId, projectData) => {
+    await updateProject(projectId, projectData);
+    await get().loadUserProjects();
+  },
+  
+  deleteProject: async (projectId) => {
+    await deleteProject(projectId);
+    const state = get();
+    if (state.currentProject?.id === projectId) {
+      set({ currentProject: null, pages: [] });
+    }
+    await get().loadUserProjects();
+  },
+  
+  loadUserProjects: async () => {
+    const { user } = get();
+    if (!user) return;
+    
+    try {
+      const projects = await getUserProjects(user.id);
+      set({ projects });
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    }
+  },
+
+  // Page state
+  currentPage: null,
+  pages: [],
+  setCurrentPage: (currentPage) => set({ currentPage }),
+  
+  createPage: async (projectId, pageData) => {
+    const pageId = await createPage(projectId, pageData);
+    await get().loadProjectPages(projectId);
+    return pageId;
+  },
+  
+  updatePage: async (pageId, pageData) => {
+    await updatePage(pageId, pageData);
+    const { currentProject } = get();
+    if (currentProject) {
+      await get().loadProjectPages(currentProject.id);
+    }
+  },
+  
+  deletePage: async (pageId) => {
+    await deletePage(pageId);
+    const { currentProject, currentPage } = get();
+    if (currentPage?.id === pageId) {
+      set({ currentPage: null });
+    }
+    if (currentProject) {
+      await get().loadProjectPages(currentProject.id);
+    }
+  },
+  
+  loadProjectPages: async (projectId) => {
+    try {
+      const pages = await getProjectPages(projectId);
+      set({ pages });
+    } catch (error) {
+      console.error('Error loading pages:', error);
+    }
+  },
 
   // Editor state
-  currentPage: null,
   selectedComponent: null,
   isPreviewMode: false,
   isDarkMode: false,
   isSidebarOpen: false,
-  setCurrentPage: (currentPage) => set({ currentPage }),
   setSelectedComponent: (selectedComponent) => set({ selectedComponent }),
   setPreviewMode: (isPreviewMode) => set({ isPreviewMode }),
   toggleDarkMode: () => set((state) => {
@@ -168,6 +286,29 @@ export const useStore = create<AppStore>((set, get) => ({
       } : null,
     };
   }),
+
+  // AI functionality
+  isGenerating: false,
+  generateWebsite: async (request) => {
+    set({ isGenerating: true });
+    try {
+      // TODO: Implement Gemini AI website generation
+      console.log('Generating website with:', request);
+    } catch (error) {
+      console.error('Website generation error:', error);
+    } finally {
+      set({ isGenerating: false });
+    }
+  },
+  
+  enhanceComponent: async (componentId, instructions) => {
+    try {
+      // TODO: Implement Gemini AI component enhancement
+      console.log('Enhancing component:', componentId, instructions);
+    } catch (error) {
+      console.error('Component enhancement error:', error);
+    }
+  },
 
   // Theme state
   currentTheme: defaultTheme,

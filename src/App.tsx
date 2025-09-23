@@ -15,30 +15,33 @@ import { Billing } from './pages/Billing';
 import { Settings } from './pages/Settings';
 import { Start } from './pages/Start';
 import { useStore } from './stores/useStore';
+import { handleRedirectResult } from './services/auth';
 
 function App() {
-  const { isDarkMode, setCurrentPage } = useStore();
+  const { isDarkMode, isLoading, initAuth } = useStore();
 
   useEffect(() => {
-    // Initialize with a default page
-    setCurrentPage({
-      id: '1',
-      name: 'Home',
-      slug: 'home',
-      components: [],
-      seo: {
-        title: 'Home Page',
-        description: 'Welcome to our website',
-        keywords: [],
-      },
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-  }, [setCurrentPage]);
+    // Initialize authentication
+    const unsubscribe = initAuth();
+    
+    // Handle redirect result for OAuth
+    handleRedirectResult().catch(console.error);
+    
+    return unsubscribe;
+  }, [initAuth]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
+
+  // Show loading screen while initializing auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <Router>
