@@ -15,7 +15,7 @@ interface ComponentRendererProps {
   component: Component;
 }
 
-export const ComponentRenderer: React.FC<ComponentRendererProps> = ({ component }) => {
+export const ComponentRenderer<ComponentRendererProps> = ({ component }) => {
   switch (component.type) {
     case 'hero':
       return <HeroComponent component={component} />;

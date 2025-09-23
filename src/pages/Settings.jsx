@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Settings as SettingsIcon, User, Bell, Shield, Palette, Code, Globe, Trash2, Save } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const Settings: React.FC = () => {
+export const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [settings, setSettings] = useState({
     profile: {

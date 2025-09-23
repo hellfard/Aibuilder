@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { History, Eye, RotateCcw, GitBranch, Clock, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const VersionHistory: React.FC = () => {
-  const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
+export const VersionHistory = () => {
+  const [selectedVersion, setSelectedVersion] = useState(null);
 
   const versions = [
     {

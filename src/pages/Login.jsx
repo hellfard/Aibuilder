@@ -1,9 +1,61 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Github, Mail, MessageCircle, ArrowLeft } from 'lucide-react';
+import { signInWithGoogle, signInWithGitHub } from '../services/auth.js';
+import { useStore } from '../stores/useStore.js';
+import toast from 'react-hot-toast';
 
-export const Login: React.FC = () => {
+export const Login = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useStore();
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsSigningIn(true);
+      await signInWithGoogle(true);
+      toast.success('Successfully signed in with Google!');
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      toast.error('Failed to sign in with Google. Please try again.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleGitHubSignIn = async () => {
+    try {
+      setIsSigningIn(true);
+      await signInWithGitHub(true);
+      toast.success('Successfully signed in with GitHub!');
+    } catch (error) {
+      console.error('GitHub sign in error:', error);
+      toast.error('Failed to sign in with GitHub. Please try again.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
+  const handleDiscordSignIn = () => {
+    toast.info('Discord authentication coming soon!');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col lg:flex-row">
       {/* Left Side - Login Form */}
@@ -30,19 +82,31 @@ export const Login: React.FC = () => {
 
           <div className="space-y-4">
             {/* Google Sign In */}
-            <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-900 transition-colors">
+            <button 
+              onClick={handleGoogleSignIn}
+              disabled={isSigningIn}
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Mail className="w-5 h-5 mr-3 text-red-500" />
-              <span>Continue with Google</span>
+              <span>{isSigningIn ? 'Signing in...' : 'Continue with Google'}</span>
             </button>
 
             {/* GitHub Sign In */}
-            <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-900 transition-colors">
+            <button 
+              onClick={handleGitHubSignIn}
+              disabled={isSigningIn}
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Github className="w-5 h-5 mr-3" />
-              <span>Continue with GitHub</span>
+              <span>{isSigningIn ? 'Signing in...' : 'Continue with GitHub'}</span>
             </button>
 
             {/* Discord Sign In */}
-            <button className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-900 transition-colors">
+            <button 
+              onClick={handleDiscordSignIn}
+              disabled={isSigningIn}
+              className="w-full flex items-center justify-center px-4 py-3 border border-gray-600 rounded-lg hover:border-gray-500 hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <MessageCircle className="w-5 h-5 mr-3 text-indigo-500" />
               <span>Continue with Discord</span>
             </button>
@@ -53,72 +117,12 @@ export const Login: React.FC = () => {
               <div className="w-full border-t border-gray-600"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-black text-gray-400">Or continue with email</span>
+              <span className="px-2 bg-black text-gray-400">Email authentication coming soon</span>
             </div>
           </div>
 
-          <form className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="w-full px-3 py-3 border border-gray-600 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Enter your email"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="w-full px-3 py-3 border border-gray-600 rounded-lg bg-gray-900 text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Enter your password"
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-600 rounded bg-gray-900"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300">
-                  Remember me
-                </label>
-              </div>
-
-              <a href="#" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
-                Forgot your password?
-              </a>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-3 px-4 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors"
-            >
-              Sign in
-            </button>
-          </form>
-
           <p className="mt-6 text-center text-sm text-gray-400">
-            Don't have an account?{' '}
-            <a href="#" className="text-purple-400 hover:text-purple-300 transition-colors">
-              Sign up for free
-            </a>
+            Don't have an account? Just sign in and we'll create one for you!
           </p>
 
           <div className="mt-8 pt-6 border-t border-gray-800 text-center">

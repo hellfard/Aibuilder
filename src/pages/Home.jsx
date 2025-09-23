@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Palette, Bot, Code, Shield, Users, Play, Check, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const Home: React.FC = () => {
+export const Home = () => {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}

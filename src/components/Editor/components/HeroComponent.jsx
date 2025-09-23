@@ -6,7 +6,7 @@ interface HeroComponentProps {
   component: Component;
 }
 
-export const HeroComponent: React.FC<HeroComponentProps> = ({ component }) => {
+export const HeroComponent<HeroComponentProps> = ({ component }) => {
   const { props = {} } = component;
   
   return (

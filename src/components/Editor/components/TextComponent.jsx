@@ -5,7 +5,7 @@ interface TextComponentProps {
   component: Component;
 }
 
-export const TextComponent: React.FC<TextComponentProps> = ({ component }) => {
+export const TextComponent<TextComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const { variant = 'paragraph', content = 'Add your text here' } = props;
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Code, Download, Copy, FileText, Settings, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const CodeExport: React.FC = () => {
+export const CodeExport = () => {
   const [selectedFormat, setSelectedFormat] = useState('react');
   const [includeStyles, setIncludeStyles] = useState(true);
   const [minifyCode, setMinifyCode] = useState(false);
@@ -57,7 +57,7 @@ export const CodeExport: React.FC = () => {
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 
-export const HeroSection: React.FC = () => {
+export const HeroSection = () => {
   return (
     <section className="bg-black text-white py-20">
       <div className="max-w-7xl mx-auto px-4 text-center">

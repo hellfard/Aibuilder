@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { CreditCard, Check, Star, Download, Calendar, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const Billing: React.FC = () => {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+export const Billing = () => {
+  const [billingCycle, setBillingCycle] = useState('monthly');
 
   const plans = [
     {

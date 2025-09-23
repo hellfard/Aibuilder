@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, Filter, Eye, Edit, Trash2 } from 'lucide-react';
 import { useStore } from '../stores/useStore';
 
-export const Dashboard: React.FC = () => {
+export const Dashboard = () => {
   const { projects } = useStore();
 
   return (

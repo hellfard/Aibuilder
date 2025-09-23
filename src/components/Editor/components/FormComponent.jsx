@@ -5,7 +5,7 @@ interface FormComponentProps {
   component: Component;
 }
 
-export const FormComponent: React.FC<FormComponentProps> = ({ component }) => {
+export const FormComponent<FormComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const {
     title = "Get in Touch",

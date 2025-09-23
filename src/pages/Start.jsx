@@ -12,7 +12,7 @@ const FigmaIcon = () => (
 );
 
 
-export const Start: React.FC = () => {
+export const Start = () => {
   const [prompt, setPrompt] = useState('');
 
   return (

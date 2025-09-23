@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Bot, Send, Sparkles, Layout, Palette, Type, Image, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const AIAssistant: React.FC = () => {
+export const AIAssistant = () => {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 

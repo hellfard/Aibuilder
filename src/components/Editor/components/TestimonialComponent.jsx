@@ -6,7 +6,7 @@ interface TestimonialComponentProps {
   component: Component;
 }
 
-export const TestimonialComponent: React.FC<TestimonialComponentProps> = ({ component }) => {
+export const TestimonialComponent<TestimonialComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const {
     quote = "This platform has completely transformed how we build websites. The AI assistance is incredible!",

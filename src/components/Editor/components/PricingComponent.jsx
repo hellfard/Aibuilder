@@ -6,7 +6,7 @@ interface PricingComponentProps {
   component: Component;
 }
 
-export const PricingComponent: React.FC<PricingComponentProps> = ({ component }) => {
+export const PricingComponent<PricingComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const {
     title = "Pro Plan",

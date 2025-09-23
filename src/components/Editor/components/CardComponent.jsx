@@ -5,7 +5,7 @@ interface CardComponentProps {
   component: Component;
 }
 
-export const CardComponent: React.FC<CardComponentProps> = ({ component }) => {
+export const CardComponent<CardComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const {
     title = 'Card Title',

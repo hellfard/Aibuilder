@@ -8,7 +8,7 @@ interface CanvasProps {
   components: Component[];
 }
 
-export const Canvas: React.FC<CanvasProps> = ({ components }) => {
+export const Canvas<CanvasProps> = ({ components }) => {
   const { selectedComponent, setSelectedComponent } = useStore();
 
   return (

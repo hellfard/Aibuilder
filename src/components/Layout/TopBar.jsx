@@ -17,7 +17,7 @@ import {
 import { useStore } from '../../stores/useStore';
 import { clsx } from 'clsx';
 
-export const TopBar: React.FC = () => {
+export const TopBar = () => {
   const { 
     currentProject, 
     isPreviewMode, 

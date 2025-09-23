@@ -5,7 +5,7 @@ interface ImageComponentProps {
   component: Component;
 }
 
-export const ImageComponent: React.FC<ImageComponentProps> = ({ component }) => {
+export const ImageComponent<ImageComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const {
     src = 'https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80',

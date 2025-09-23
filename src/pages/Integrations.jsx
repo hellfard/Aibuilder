@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plug, Search, Check, Settings, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const Integrations: React.FC = () => {
+export const Integrations = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 

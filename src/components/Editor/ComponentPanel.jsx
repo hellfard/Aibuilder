@@ -29,7 +29,7 @@ const componentTypes = [
   { type: 'form' as ComponentType, name: 'Form', icon: Square, description: 'Contact forms and inputs' },
 ];
 
-export const ComponentPanel: React.FC<ComponentPanelProps> = ({ onAddComponent }) => {
+export const ComponentPanel<ComponentPanelProps> = ({ onAddComponent }) => {
   return (
     <div className="w-80 bg-black dark:bg-white border-r border-gray-800 dark:border-gray-200 flex flex-col">
       <div className="p-4 border-b border-gray-800 dark:border-gray-200">

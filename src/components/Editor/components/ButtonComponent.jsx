@@ -6,7 +6,7 @@ interface ButtonComponentProps {
   component: Component;
 }
 
-export const ButtonComponent: React.FC<ButtonComponentProps> = ({ component }) => {
+export const ButtonComponent<ButtonComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const { 
     text = 'Button Text',

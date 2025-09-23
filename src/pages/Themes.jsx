@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Palette, Download, Eye, Star, Search, Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const Themes: React.FC = () => {
+export const Themes = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 

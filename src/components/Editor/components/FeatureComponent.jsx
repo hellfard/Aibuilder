@@ -6,7 +6,7 @@ interface FeatureComponentProps {
   component: Component;
 }
 
-export const FeatureComponent: React.FC<FeatureComponentProps> = ({ component }) => {
+export const FeatureComponent<FeatureComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const {
     title = 'Amazing Feature',

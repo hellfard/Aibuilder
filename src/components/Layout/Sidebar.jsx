@@ -27,7 +27,7 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-export const Sidebar: React.FC = () => {
+export const Sidebar = () => {
   const { isSidebarOpen } = useStore();
 
   return (

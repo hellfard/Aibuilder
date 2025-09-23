@@ -5,7 +5,7 @@ import { TopBar } from './TopBar';
 import { useStore } from '../../stores/useStore';
 import { clsx } from 'clsx';
 
-export const AppLayout: React.FC = () => {
+export const AppLayout = () => {
   const { isPreviewMode, isSidebarOpen } = useStore();
 
   if (isPreviewMode) {

@@ -6,7 +6,7 @@ interface NavbarComponentProps {
   component: Component;
 }
 
-export const NavbarComponent: React.FC<NavbarComponentProps> = ({ component }) => {
+export const NavbarComponent<NavbarComponentProps> = ({ component }) => {
   const { props = {} } = component;
   const [isOpen, setIsOpen] = React.useState(false);
   
