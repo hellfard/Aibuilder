@@ -1,9 +1,5 @@
 import React from 'react';
-import { Component } from '../../../types';
 
-interface TextComponentProps {
-  component: Component;
-}
 
 export const TextComponent<TextComponentProps> = ({ component }) => {
   const { props = {} } = component;

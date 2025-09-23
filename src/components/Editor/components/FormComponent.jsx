@@ -1,9 +1,5 @@
 import React from 'react';
-import { Component } from '../../../types';
 
-interface FormComponentProps {
-  component: Component;
-}
 
 export const FormComponent<FormComponentProps> = ({ component }) => {
   const { props = {} } = component;

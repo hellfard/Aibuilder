@@ -10,11 +10,7 @@ import {
   Navigation,
   Layout
 } from 'lucide-react';
-import { ComponentType } from '../../types';
 
-interface ComponentPanelProps {
-  onAddComponent: (type: ComponentType) => void;
-}
 
 const componentTypes = [
   { type: 'hero' as ComponentType, name: 'Hero Section', icon: Layout, description: 'Eye-catching hero with headline and CTA' },

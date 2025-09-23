@@ -1,10 +1,6 @@
 import React from 'react';
-import { Component } from '../../../types';
 import { ArrowRight } from 'lucide-react';
 
-interface ButtonComponentProps {
-  component: Component;
-}
 
 export const ButtonComponent<ButtonComponentProps> = ({ component }) => {
   const { props = {} } = component;

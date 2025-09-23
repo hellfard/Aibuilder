@@ -1,10 +1,6 @@
 import React from 'react';
-import { Component } from '../../../types';
 import { ArrowRight, Play } from 'lucide-react';
 
-interface HeroComponentProps {
-  component: Component;
-}
 
 export const HeroComponent<HeroComponentProps> = ({ component }) => {
   const { props = {} } = component;

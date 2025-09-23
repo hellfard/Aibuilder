@@ -1,12 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Component } from '../../types';
 import { useStore } from '../../stores/useStore';
 import { ComponentRenderer } from './ComponentRenderer';
 
-interface CanvasProps {
-  components: Component[];
-}
 
 export const Canvas<CanvasProps> = ({ components }) => {
   const { selectedComponent, setSelectedComponent } = useStore();

@@ -1,174 +1,323 @@
 import React, { useState } from 'react';
-import { Bot, Send, Sparkles, Layout, Palette, Type, Image, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Sparkles, Wand2, Palette, Layout, Type, MessageSquare, ArrowRight, Loader2 } from 'lucide-react';
+import { useStore } from '../stores/useStore.js';
+import { generateWebsiteLayout, generateContent, enhanceComponent } from '../gemini.js';
+import toast from 'react-hot-toast';
 
 export const AIAssistant = () => {
+  const { user, currentProject, createProject, createPage, currentPage, addComponent, isGenerating } = useStore();
+  const [selectedFeature, setSelectedFeature] = useState('generate');
   const [prompt, setPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const suggestions = [
+  const aiFeatures = [
     {
-      icon: <Layout className="w-5 h-5" />,
-      title: "Create a landing page",
-      description: "for a SaaS product with hero, features, and pricing",
-      prompt: "Create a modern SaaS landing page with hero section, 3 key features, testimonials, and pricing table"
+      id: 'generate',
+      title: 'Generate Website',
+      description: 'Create a complete website layout from a description',
+      icon: Layout,
+      color: 'from-purple-500 to-indigo-600'
     },
     {
-      icon: <Palette className="w-5 h-5" />,
-      title: "Design a portfolio",
-      description: "showcase with project gallery and about section",
-      prompt: "Design a creative portfolio website with project gallery, about section, and contact form"
+      id: 'enhance',
+      title: 'Enhance Component',
+      description: 'Improve existing components with AI suggestions',
+      icon: Wand2,
+      color: 'from-blue-500 to-purple-600'
     },
     {
-      icon: <Type className="w-5 h-5" />,
-      title: "Build a blog layout",
-      description: "with article listings and sidebar",
-      prompt: "Create a clean blog layout with featured articles, category sidebar, and newsletter signup"
+      id: 'content',
+      title: 'Generate Content',
+      description: 'Create engaging copy for your website',
+      icon: Type,
+      color: 'from-green-500 to-blue-600'
     },
     {
-      icon: <Image className="w-5 h-5" />,
-      title: "Generate content",
-      description: "copy and images for any section",
-      prompt: "Generate engaging copy and select appropriate images for a fitness app landing page"
+      id: 'design',
+      title: 'Design Suggestions',
+      description: 'Get AI-powered design and color recommendations',
+      icon: Palette,
+      color: 'from-pink-500 to-red-600'
     }
   ];
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-    
-    setIsGenerating(true);
-    // Simulate AI generation
-    setTimeout(() => {
-      setIsGenerating(false);
+  const handleGenerateWebsite = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please describe what kind of website you want to create');
+      return;
+    }
+
+    if (!user) {
+      toast.error('Please sign in to use AI features');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      
+      const request = {
+        description: prompt,
+        industry: 'general',
+        style: 'modern',
+        colors: ['#6366f1', '#8b5cf6', '#06b6d4'],
+        features: ['responsive', 'modern', 'accessible']
+      };
+
+      const result = await generateWebsiteLayout(request);
+      
+      // Create a new project
+      const projectId = await createProject({
+        name: result.page?.name || 'AI Generated Website',
+        description: prompt,
+        pages: [],
+        theme: result.theme || {},
+        published: false,
+        domain: undefined
+      });
+
+      // Create the page
+      const pageId = await createPage(projectId, {
+        name: result.page?.name || 'Home',
+        slug: result.page?.slug || 'home',
+        components: result.components || [],
+        seo: result.page?.seo || {
+          title: result.page?.name || 'Home',
+          description: prompt,
+          keywords: []
+        }
+      });
+
+      toast.success('Website generated successfully! Check your projects.');
       setPrompt('');
-    }, 3000);
+      
+    } catch (error) {
+      console.error('Website generation error:', error);
+      toast.error('Failed to generate website. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleGenerateContent = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please describe what content you need');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const content = await generateContent('website content', prompt);
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(content);
+      toast.success('Content generated and copied to clipboard!');
+      setPrompt('');
+      
+    } catch (error) {
+      console.error('Content generation error:', error);
+      toast.error('Failed to generate content. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleEnhanceComponent = async () => {
+    if (!currentPage?.components?.length) {
+      toast.error('No components found to enhance. Create a page with components first.');
+      return;
+    }
+
+    if (!prompt.trim()) {
+      toast.error('Please describe how you want to enhance the component');
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const component = currentPage.components[0]; // Enhance first component as example
+      const enhanced = await enhanceComponent(component, prompt);
+      
+      // Add the enhanced component
+      addComponent(enhanced);
+      toast.success('Component enhanced successfully!');
+      setPrompt('');
+      
+    } catch (error) {
+      console.error('Component enhancement error:', error);
+      toast.error('Failed to enhance component. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    switch (selectedFeature) {
+      case 'generate':
+        await handleGenerateWebsite();
+        break;
+      case 'content':
+        await handleGenerateContent();
+        break;
+      case 'enhance':
+        await handleEnhanceComponent();
+        break;
+      case 'design':
+        toast.info('Design suggestions feature coming soon!');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const getPromptPlaceholder = () => {
+    switch (selectedFeature) {
+      case 'generate':
+        return 'Describe your website (e.g., "Create a modern portfolio website for a graphic designer with a dark theme")';
+      case 'enhance':
+        return 'Describe how to improve the component (e.g., "Make it more modern with better colors and typography")';
+      case 'content':
+        return 'Describe the content you need (e.g., "Write compelling hero text for a SaaS landing page")';
+      case 'design':
+        return 'Describe your design preferences (e.g., "Suggest a color scheme for a tech startup")';
+      default:
+        return 'Enter your request...';
+    }
   };
 
   return (
-    <div className="p-6 bg-black text-white min-h-full">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl mb-4">
-            <Bot className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold mb-2">AI Assistant</h1>
-          <p className="text-gray-400 text-lg">
-            Describe what you want to build and I'll create it for you
-          </p>
-        </div>
-
-        {/* Quick Suggestions */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
-            <Sparkles className="w-5 h-5 mr-2 text-purple-400" />
-            Quick Start Ideas
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {suggestions.map((suggestion, index) => (
-              <motion.button
-                key={suggestion.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => setPrompt(suggestion.prompt)}
-                className="p-4 border border-gray-800 rounded-lg hover:border-purple-500 hover:bg-purple-950/20 transition-colors text-left group"
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="text-purple-400 group-hover:text-purple-300 transition-colors">
-                    {suggestion.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-white group-hover:text-purple-100 transition-colors">
-                      {suggestion.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm mt-1">
-                      {suggestion.description}
-                    </p>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        {/* AI Prompt Input */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 mb-8">
-          <div className="flex items-start space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Wand2 className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <textarea
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe what you want to build... (e.g., 'Create a modern restaurant website with menu, gallery, and reservation form')"
-                className="w-full bg-transparent text-white placeholder-gray-400 resize-none focus:outline-none"
-                rows={3}
-              />
-              <div className="flex items-center justify-between mt-4">
-                <div className="text-sm text-gray-500">
-                  {prompt.length}/500 characters
-                </div>
-                <button
-                  onClick={handleGenerate}
-                  disabled={!prompt.trim() || isGenerating}
-                  className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 ${
-                    prompt.trim() && !isGenerating
-                      ? 'bg-white text-black hover:bg-gray-100'
-                      : 'bg-gray-800 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  {isGenerating ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-                      <span>Generating...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Generate</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Capabilities */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 border border-gray-800 rounded-lg">
-            <div className="w-12 h-12 bg-purple-950/50 rounded-lg flex items-center justify-center mb-4">
-              <Layout className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="font-semibold mb-2">Smart Layouts</h3>
-            <p className="text-gray-400 text-sm">
-              Generate complete page layouts with optimized component placement and responsive design.
-            </p>
-          </div>
-
-          <div className="p-6 border border-gray-800 rounded-lg">
-            <div className="w-12 h-12 bg-purple-950/50 rounded-lg flex items-center justify-center mb-4">
-              <Type className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="font-semibold mb-2">Content Generation</h3>
-            <p className="text-gray-400 text-sm">
-              Create compelling copy, headlines, and descriptions that match your brand voice.
-            </p>
-          </div>
-
-          <div className="p-6 border border-gray-800 rounded-lg">
-            <div className="w-12 h-12 bg-purple-950/50 rounded-lg flex items-center justify-center mb-4">
-              <Palette className="w-6 h-6 text-purple-400" />
-            </div>
-            <h3 className="font-semibold mb-2">Design System</h3>
-            <p className="text-gray-400 text-sm">
-              Automatically apply consistent colors, typography, and spacing throughout your site.
-            </p>
-          </div>
-        </div>
+    <div className="max-w-6xl mx-auto space-y-8">
+      <div className="text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-center mb-4"
+        >
+          <Sparkles className="w-8 h-8 text-purple-500 mr-3" />
+          <h1 className="text-3xl font-bold text-white">AI Assistant</h1>
+        </motion.div>
+        <p className="text-gray-400 max-w-2xl mx-auto">
+          Harness the power of artificial intelligence to create stunning websites, generate content, and enhance your designs.
+        </p>
       </div>
+
+      {/* Feature Selection */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        {aiFeatures.map((feature) => {
+          const Icon = feature.icon;
+          return (
+            <motion.button
+              key={feature.id}
+              onClick={() => setSelectedFeature(feature.id)}
+              className={`p-6 rounded-xl border text-left transition-all ${
+                selectedFeature === feature.id
+                  ? 'border-purple-500 bg-purple-500/10'
+                  : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'
+              }`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4`}>
+                <Icon className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+              <p className="text-sm text-gray-400">{feature.description}</p>
+            </motion.button>
+          );
+        })}
+      </motion.div>
+
+      {/* AI Prompt Interface */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-gray-800/50 rounded-xl border border-gray-700 p-6"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              {aiFeatures.find(f => f.id === selectedFeature)?.title}
+            </label>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={getPromptPlaceholder()}
+              className="w-full h-32 px-4 py-3 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-gray-400">
+              {prompt.length}/500 characters
+            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={isProcessing || !prompt.trim()}
+              className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg font-medium hover:from-purple-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generate</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <MessageSquare className="w-8 h-8 text-blue-500 mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">Need Ideas?</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Not sure what to create? Get inspired with our AI-powered suggestions.
+          </p>
+          <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+            Get Suggestions →
+          </button>
+        </div>
+
+        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <Layout className="w-8 h-8 text-green-500 mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">Templates</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Start with professionally designed templates and customize with AI.
+          </p>
+          <button className="text-green-400 hover:text-green-300 text-sm font-medium">
+            Browse Templates →
+          </button>
+        </div>
+
+        <div className="bg-gray-800/50 rounded-xl border border-gray-700 p-6">
+          <Wand2 className="w-8 h-8 text-purple-500 mb-4" />
+          <h3 className="text-lg font-semibold text-white mb-2">AI Tips</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Learn how to write better prompts for amazing AI-generated results.
+          </p>
+          <button className="text-purple-400 hover:text-purple-300 text-sm font-medium">
+            Learn More →
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 };

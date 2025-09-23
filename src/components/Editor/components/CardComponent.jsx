@@ -1,9 +1,5 @@
 import React from 'react';
-import { Component } from '../../../types';
 
-interface CardComponentProps {
-  component: Component;
-}
 
 export const CardComponent<CardComponentProps> = ({ component }) => {
   const { props = {} } = component;

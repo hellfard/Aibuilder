@@ -1,10 +1,6 @@
 import React from 'react';
-import { Component } from '../../../types';
 import { Star } from 'lucide-react';
 
-interface TestimonialComponentProps {
-  component: Component;
-}
 
 export const TestimonialComponent<TestimonialComponentProps> = ({ component }) => {
   const { props = {} } = component;

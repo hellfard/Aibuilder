@@ -1,9 +1,5 @@
 import React from 'react';
-import { Component } from '../../../types';
 
-interface ImageComponentProps {
-  component: Component;
-}
 
 export const ImageComponent<ImageComponentProps> = ({ component }) => {
   const { props = {} } = component;

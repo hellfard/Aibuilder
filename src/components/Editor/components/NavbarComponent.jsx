@@ -1,10 +1,6 @@
 import React from 'react';
-import { Component } from '../../../types';
 import { Menu, X } from 'lucide-react';
 
-interface NavbarComponentProps {
-  component: Component;
-}
 
 export const NavbarComponent<NavbarComponentProps> = ({ component }) => {
   const { props = {} } = component;

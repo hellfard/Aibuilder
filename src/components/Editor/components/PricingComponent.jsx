@@ -1,10 +1,6 @@
 import React from 'react';
-import { Component } from '../../../types';
 import { Check } from 'lucide-react';
 
-interface PricingComponentProps {
-  component: Component;
-}
 
 export const PricingComponent<PricingComponentProps> = ({ component }) => {
   const { props = {} } = component;

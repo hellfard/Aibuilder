@@ -1,5 +1,4 @@
 import React from 'react';
-import { Component } from '../../types';
 import { HeroComponent } from './components/HeroComponent';
 import { NavbarComponent } from './components/NavbarComponent';
 import { TextComponent } from './components/TextComponent';
@@ -11,9 +10,6 @@ import { PricingComponent } from './components/PricingComponent';
 import { ImageComponent } from './components/ImageComponent';
 import { FormComponent } from './components/FormComponent';
 
-interface ComponentRendererProps {
-  component: Component;
-}
 
 export const ComponentRenderer<ComponentRendererProps> = ({ component }) => {
   switch (component.type) {

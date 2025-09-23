@@ -1,10 +1,6 @@
 import React from 'react';
-import { Component } from '../../../types';
 import { Star, Zap, Shield } from 'lucide-react';
 
-interface FeatureComponentProps {
-  component: Component;
-}
 
 export const FeatureComponent<FeatureComponentProps> = ({ component }) => {
   const { props = {} } = component;
