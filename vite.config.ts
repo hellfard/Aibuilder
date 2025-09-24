@@ -11,6 +11,10 @@ export default defineConfig({
     hmr: {
       port: 443,
     },
+    allowedHosts: [
+      '.replit.dev',
+      '.repl.co'
+    ],
   },
   
   optimizeDeps: {
