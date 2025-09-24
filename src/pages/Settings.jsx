@@ -38,7 +38,7 @@ export const Settings = () => {
     { id: 'advanced', name: 'Advanced', icon: SettingsIcon }
   ];
 
-  const updateSetting = (category: string, key: string, value: any) => {
+  const updateSetting = (category, key, value) => {
     setSettings(prev => ({
       ...prev,
       [category]: {
